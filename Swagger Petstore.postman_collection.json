@@ -1,0 +1,426 @@
+{
+	"info": {
+		"_postman_id": "9d583460-5b0d-40c3-89f1-3e55e2880e4c",
+		"name": "Swagger Petstore",
+		"description": "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.\n\nContact Support:\n Email: apiteam@swagger.io",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29495318"
+	},
+	"item": [
+		{
+			"name": "pet",
+			"item": [
+				{
+					"name": "{petId}",
+					"item": [
+						{
+							"name": "positiveScenarios",
+							"item": [
+								{
+									"name": "Add a new pet to the store",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.clear();\r",
+													"\r",
+													"pm.collectionVariables.set('name', pm.variables.replaceIn('Dog'));\r",
+													"\r",
+													"const randomId = Math.floor(Math.random() * 100000000) + 1;\r",
+													"\r",
+													"pm.collectionVariables.set('id', randomId);"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"let jsonData;\r",
+													"\r",
+													"pm.test(\"Response body is JSON\", function() {\r",
+													"    pm.response.to.be.json;\r",
+													"    jsonData = pm.response.json();\r",
+													"    pm.collectionVariables.set('petId', jsonData.id);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Category name\", function() {\r",
+													"    pm.expect(jsonData.category.name)\r",
+													"        .to.eql(pm.collectionVariables.get('name'));\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "scope",
+													"value": "read:pets write:pets",
+													"type": "string"
+												},
+												{
+													"key": "authUrl",
+													"value": "https://petstore.swagger.io/oauth/authorize",
+													"type": "string"
+												},
+												{
+													"key": "grant_type",
+													"value": "implicit",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": {{id}},\n    \"category\": {\n        \"id\": 101,\n        \"name\": \"Dog\"\n    },\n    \"name\": \"{{$randomFirstName}}\",\n    \"photoUrls\": [\n        \"{{$randomImageUrl}}\"\n    ],\n    \"tags\": [\n        {\n            \"id\": 201,\n            \"name\": \"White\"\n        }\n    ],\n    \"status\": \"available\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/pet",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"pet"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Find pet by ID",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"let response = pm.response.json();\r",
+													"\r",
+													"pm.test(\"Response is an object\", () => {\r",
+													"    pm.expect(response).to.be.an('object');\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Response time should be less than 1000ms\", () => {\r",
+													"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Pet name\", () => {\r",
+													"    pm.expect(response.name).to.be.a('string');\r",
+													"});\r",
+													"\r",
+													"\r",
+													""
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.clear();"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "apikey",
+											"apikey": [
+												{
+													"key": "key",
+													"value": "api_key",
+													"type": "string"
+												},
+												{
+													"key": "value",
+													"value": "{{apiKey}}",
+													"type": "string"
+												},
+												{
+													"key": "in",
+													"value": "header",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/pet/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"pet",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "petId",
+													"value": "{{petId}}",
+													"description": "(Required) ID of pet to return"
+												}
+											]
+										},
+										"description": "Returns a single pet"
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "invalidInputs",
+							"item": [
+								{
+									"name": "Find pet by ID - Invalid petId",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.clear();"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 404\", function () {\r",
+													"    pm.response.to.have.status(404);\r",
+													"});\r",
+													"\r",
+													"const response = pm.response.json();\r",
+													"\r",
+													"pm.test(\"Error message\", () => {\r",
+													"    const expectedError = \"Pet not found\";\r",
+													"    pm.expect(response.message).to.eql(expectedError);\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "apikey",
+											"apikey": [
+												{
+													"key": "key",
+													"value": "api_key",
+													"type": "string"
+												},
+												{
+													"key": "value",
+													"value": "{{apiKey}}",
+													"type": "string"
+												},
+												{
+													"key": "in",
+													"value": "header",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/pet/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"pet",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "petId",
+													"value": "21414142144434",
+													"description": "(Required) ID of pet to return"
+												}
+											]
+										},
+										"description": "Returns a single pet"
+									},
+									"response": []
+								},
+								{
+									"name": "Find pet by ID - Invalid datatype",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.clear();"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 404\", function () {\r",
+													"    pm.response.to.have.status(404);\r",
+													"});\r",
+													"\r",
+													"const response = pm.response.json();\r",
+													"\r",
+													"pm.test(\"Error message\", () => {\r",
+													"    pm.expect(response.message).to.match(/^java.lang.NumberFormatException/);\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "apikey",
+											"apikey": [
+												{
+													"key": "key",
+													"value": "api_key",
+													"type": "string"
+												},
+												{
+													"key": "value",
+													"value": "{{apiKey}}",
+													"type": "string"
+												},
+												{
+													"key": "in",
+													"value": "header",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/pet/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"pet",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "petId",
+													"value": "tgtggtggr",
+													"description": "(Required) ID of pet to return"
+												}
+											]
+										},
+										"description": "Returns a single pet"
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://petstore.swagger.io/v2"
+		},
+		{
+			"key": "apiKey",
+			"value": "special-key",
+			"type": "default"
+		},
+		{
+			"key": "petId",
+			"value": ""
+		},
+		{
+			"key": "name",
+			"value": ""
+		},
+		{
+			"key": "id",
+			"value": ""
+		}
+	]
+}
